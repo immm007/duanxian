@@ -24,15 +24,21 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="PluginTCalcFunc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TCalcFuncSets.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="duanxian.cpp">
+    <ClCompile Include="dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="dllmain.cpp">
+    <ClCompile Include="duanxian.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
