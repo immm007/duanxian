@@ -1,12 +1,16 @@
 #pragma once
+#include <map>
+#include <memory>
+
 class Flag
 {
 public:
+	Flag() {}
 	Flag(int _N, int _gap, int bsp = -1, int llp = -1, float ch = -1)
 	{
 		N = _N;
 		gap = _gap;
-		refresh(bsp, llp, ch);
+		refresh(bsp, ch, llp);
 	}
 
 	void refresh(int bsp, float ch, int llp)
@@ -54,7 +58,7 @@ public:
 
 	bool is_special_case() const
 	{
-		return N == 0 && gap == 1;
+		return N == 0;//这是一种求市场高度板特殊情况
 	}
 
 	bool check_input(int N, int gap)
@@ -65,11 +69,10 @@ public:
 		}
 		else
 		{
-			if (N == 0 && gap == 1)//这是一种求市场高度板特殊情况
+			if (is_special_case())
 			{
 				return true;
 			}
-			MessageBoxA(NULL, "一般情况下N必须大于Gap", "错误", MB_OK);
 			return false;
 		}
 	}
@@ -79,5 +82,26 @@ private:
 	int buffer_start_pos;//记录连板缓冲期起始的位置，只可能是涨停板或之后缓冲期内创新高K线的位置
 	int last_lbzt_pos;//记录连板计数中最近的一个非缓存涨停位置
 	float current_high;//当前最高价
+};
+
+class LBCS
+{
+public:
+	static void set_data(int len, float* outs, float* code, float* highs, float* ztqks);
+	static std::shared_ptr<LBCS> get(float* code);
+
+	void calculate(int len, float* outs, float* n, float* gap);
+	void set_highs(float* highs) { this->highs = highs; }
+	void set_ztqks(float* ztqks) { this->ztqks = ztqks; }
+private:
+	static std::map<std::string, std::shared_ptr<LBCS>> container;
+
+	LBCS(const std::string& _code) :code{_code} { }
+	void handle_outbuffer_zt(int len, float* outs, int i);
+
+	std::string code;
+	Flag flag;
+	float* highs;
+	float* ztqks;
 };
 
