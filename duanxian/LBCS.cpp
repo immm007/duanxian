@@ -5,23 +5,7 @@
 
 using namespace std;
 
-
-void LBCS::set_data(int len, float * outs, float * code, float * highs, float * ztqks)
-{
-	string s_code = Debug::tr_code(code);
-	if (container.count(s_code) == 0)
-	{
-		container[s_code] = shared_ptr<LBCS>(new LBCS(s_code));
-	}
-	container[s_code]->set_highs(highs);
-	container[s_code]->set_ztqks(ztqks);
-}
-
-shared_ptr<LBCS> LBCS::get(float * code)
-{
-	string s_code = Debug::tr_code(code);
-	return container[s_code];
-}
+map<float, shared_ptr<LBCS>> LBCS::container;
 
 void LBCS::calculate(int len, float* outs, float* n, float* gap)
 /*计算连扳次数，依赖通达信传来的涨停类型数据：
@@ -34,7 +18,7 @@ gap、断掉连板后的缓冲周期数
 {
 	int N = static_cast<int>(*n);
 	int GAP = static_cast<int>(*gap);
-	flag = Flag{ N,GAP };
+	Flag flag{ N,GAP };
 	if (!flag.check_input(N, GAP))
 	{
 		Debug::show("一般情况下N必须大于Gap");
@@ -97,13 +81,15 @@ gap、断掉连板后的缓冲周期数
 						if (dist == 0)
 						{
 							Debug::show("dist不可能为0");
+							outs[i - 1] = 255;//便于调试
 							return;
 						}
 						//虽然理论上dist不可能为1，因为不可能出现涨停接涨停却不创新高的情况
 						//但是某些极端情况，比如当天正好除权，是可能出现的
 						else if (dist == 1)
 						{
-							debug->log("i=%d,code:%s,high:%.2f\n", i, code.c_str(), highs[i]);
+							debug->show("非常少见的除权日及其前一天都涨停");
+							outs[len - 1] = 256;//便于调试
 							return;
 						}
 						else if (dist == 2)
@@ -151,7 +137,7 @@ gap、断掉连板后的缓冲周期数
 					{
 						if (zt_type == 2)
 						{
-							handle_outbuffer_zt(len, outs, i);
+							handle_outbuffer_zt(flag,len, outs, i);
 						}
 						else
 						{
@@ -173,6 +159,7 @@ gap、断掉连板后的缓冲周期数
 					else//不可能存在缓存着两个连续的涨停板
 					{
 						Debug::show("不可能存在缓存着两个连续的涨停板");
+						outs[len - 1] = 257;//便于调试
 						return;
 					}
 					cached_zt.clear();
@@ -181,7 +168,7 @@ gap、断掉连板后的缓冲周期数
 				{
 					if (zt_type == 2)
 					{
-						handle_outbuffer_zt(len, outs, i);
+						handle_outbuffer_zt(flag,len, outs, i);
 					}
 					else
 					{
@@ -193,7 +180,7 @@ gap、断掉连板后的缓冲周期数
 	}
 }
 //处理缓冲期外的涨停
-void LBCS::handle_outbuffer_zt(int len, float* outs, int i)
+void LBCS::handle_outbuffer_zt(Flag& flag, int len, float* outs, int i)
 {
 	if (i + 1 < len && ztqks[i + 1] == 2)//peek一下是否有两连板的机会
 	{

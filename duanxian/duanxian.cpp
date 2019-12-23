@@ -6,8 +6,6 @@ using namespace std;
 
 //生成的dll及相关依赖dll请拷贝到通达信安装目录的T0002/dlls/下面,再在公式管理器进行绑定
 
-map<string,shared_ptr<LBCS>> LBCS::container;
-
 void set_lbcs_data(int len, float* outs, float* code, float* highs, float* ztqks)
 //设置数据
 {

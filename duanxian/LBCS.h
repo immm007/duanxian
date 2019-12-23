@@ -87,20 +87,26 @@ private:
 class LBCS
 {
 public:
-	static void set_data(int len, float* outs, float* code, float* highs, float* ztqks);
-	static std::shared_ptr<LBCS> get(float* code);
-
+	static inline void set_data(int len, float* outs, float* code, float* highs, float* ztqks)
+	{
+		if (container.count(*code) == 0)
+		{
+			container[*code] = std::shared_ptr<LBCS>(new LBCS());
+		}
+		container[*code]->set_highs(highs);
+		container[*code]->set_ztqks(ztqks);
+	}
+	static inline std::shared_ptr<LBCS> get(float* code)
+	{
+		return container[*code];
+	}
 	void calculate(int len, float* outs, float* n, float* gap);
-	void set_highs(float* highs) { this->highs = highs; }
-	void set_ztqks(float* ztqks) { this->ztqks = ztqks; }
+	inline void set_highs(float* highs) { this->highs = highs; }
+	inline void set_ztqks(float* ztqks) { this->ztqks = ztqks; }
 private:
-	static std::map<std::string, std::shared_ptr<LBCS>> container;
+	static std::map<float, std::shared_ptr<LBCS>> container;
+	void handle_outbuffer_zt(Flag& flag, int len, float* outs, int i);
 
-	LBCS(const std::string& _code) :code{_code} { }
-	void handle_outbuffer_zt(int len, float* outs, int i);
-
-	std::string code;
-	Flag flag;
 	float* highs;
 	float* ztqks;
 };
