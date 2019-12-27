@@ -2,12 +2,13 @@
 #include "LBCS.h"
 #include "Debug.hpp"
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
 map<float, shared_ptr<LBCS>> LBCS::container;
 
-void LBCS::calculate(int len, float* outs, float* n, float* gap)
+void LBCS::calculate_lbcs(int len, float* outs, float* n, float* gap)
 /*计算连扳次数，依赖通达信传来的涨停类型数据：
 2、收盘涨停
 1、触及涨停
@@ -18,7 +19,7 @@ gap、断掉连板后的缓冲周期数
 {
 	int N = static_cast<int>(*n);
 	int GAP = static_cast<int>(*gap);
-	Flag flag{ N,GAP };
+	flag = Flag{ N,GAP };
 	if (!flag.check_input(N, GAP))
 	{
 		Debug::show("一般情况下N必须大于Gap");
@@ -177,6 +178,31 @@ gap、断掉连板后的缓冲周期数
 				}
 			}
 		}
+	}
+}
+void LBCS::calculate_df(int len, float * outs, float * closes)
+{
+	int bsp = flag.get_buffer_start_pos();
+	float cur_high = flag.get_high();
+	float high = *max_element(highs + bsp + 1, highs + len);
+	if (high >= cur_high) //后面创出了新高
+	{
+		for (int j = len - 1; j > bsp; --j)
+		{
+			if (highs[j] == high)
+			{
+				bsp = j;
+				break;
+			}
+		}
+	}
+	else
+	{
+		high = cur_high;
+	}
+	for (size_t i = bsp; i < len; i++)
+	{
+		outs[i] = (closes[i] - high) / high;
 	}
 }
 //处理缓冲期外的涨停

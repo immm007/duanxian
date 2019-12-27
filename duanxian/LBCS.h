@@ -13,52 +13,57 @@ public:
 		refresh(bsp, ch, llp);
 	}
 
-	void refresh(int bsp, float ch, int llp)
+	inline void refresh(int bsp, float ch, int llp)
 	{
 		buffer_start_pos = bsp;
 		current_high = ch;
 		last_lbzt_pos = llp;
 	}
 
-	void refresh(int bsp, float ch)
+	inline void refresh(int bsp, float ch)
 	{
 		buffer_start_pos = bsp;
 		current_high = ch;
 	}
 
-	bool is_in_buffer_time(int i) const
+	inline bool is_in_buffer_time(int i) const
 	{
 		return i - buffer_start_pos <= gap;
 	}
 
-	bool is_in_valid_time(int i) const
+	inline bool is_in_valid_time(int i) const
 	{
 		return i - buffer_start_pos <= N;
 	}
 
-	bool is_price_higher(float price) const
+	inline bool is_price_higher(float price) const
 	{
 		return price >= current_high;
 	}
 
-	bool never_zhangting() const
+	inline bool never_zhangting() const
 	{
 		return buffer_start_pos == -1;
 	}
 
-	int dist_from_llp(int i) const
+	inline int dist_from_llp(int i) const
 	{
 		return i - last_lbzt_pos;
 	}
 
-	int get_buffer_start_pos() const
+	inline int get_buffer_start_pos() const
 	{
 		return buffer_start_pos;
 	}
 
-	bool is_special_case() const
+	inline bool is_special_case() const
 	{
 		return N == 0;//这是一种求市场高度板特殊情况
+	}
+
+	inline float get_high() const
+	{
+		return current_high;
 	}
 
 	bool check_input(int N, int gap)
@@ -100,13 +105,15 @@ public:
 	{
 		return container[*code];
 	}
-	void calculate(int len, float* outs, float* n, float* gap);
+	void calculate_lbcs(int len, float* outs, float* n, float* gap);
+	void calculate_df(int len, float* outs, float* closes);
 	inline void set_highs(float* highs) { this->highs = highs; }
 	inline void set_ztqks(float* ztqks) { this->ztqks = ztqks; }
 private:
 	static std::map<float, std::shared_ptr<LBCS>> container;
 	void handle_outbuffer_zt(Flag& flag, int len, float* outs, int i);
 
+	Flag flag;
 	float* highs;
 	float* ztqks;
 };

@@ -15,7 +15,13 @@ void set_lbcs_data(int len, float* outs, float* code, float* highs, float* ztqks
 void lbcs(int len, float* outs, float* code, float* n, float* gap)
 {
 	auto lbcs = LBCS::get(code);
-	lbcs->calculate(len, outs, n, gap);
+	lbcs->calculate_lbcs(len, outs, n, gap);
+}
+
+void df(int len, float* outs, float* code, float* closes, float*)
+{
+	auto lbcs = LBCS::get(code);
+	lbcs->calculate_df(len, outs, closes);
 }
 
 //¼ÓÔØµÄº¯Êý
@@ -23,6 +29,7 @@ PluginTCalcFuncInfo g_CalcFuncSets[] =
 {
 	{ 1,(pPluginFUNC)&set_lbcs_data },
 	{ 2,(pPluginFUNC)&lbcs },
+	{ 3,(pPluginFUNC)&df },
 	{0,NULL},
 };
 

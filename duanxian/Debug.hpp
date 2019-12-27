@@ -40,6 +40,18 @@ public:
 		MessageBoxA(NULL, msg, "´íÎó", MB_OK);
 	}
 
+#ifndef LOGOFF
+	static void show2(const char* format, ...)
+	{
+		char buffer[128];
+		va_list args;
+		va_start(args, format);
+		int size = vsprintf(buffer, format, args);
+		va_end(args);
+		show(buffer);
+	}
+#endif // !LOGOFF
+
 	void log(const char* format, ...)
 	{
 #ifndef LOGOFF
