@@ -180,9 +180,14 @@ gap、断掉连板后的缓冲周期数
 		}
 	}
 }
+
 void LBCS::calculate_df(int len, float * outs, float * closes)
 {
 	int bsp = flag.get_buffer_start_pos();
+	if (len - bsp > 120)//现在距离缓冲期起始位置太远了
+	{
+		return;
+	}
 	float cur_high = flag.get_high();
 	float high = *max_element(highs + bsp + 1, highs + len);
 	if (high >= cur_high) //后面创出了新高
@@ -205,6 +210,7 @@ void LBCS::calculate_df(int len, float * outs, float * closes)
 		outs[i] = (closes[i] - high) / high;
 	}
 }
+
 //处理缓冲期外的涨停
 void LBCS::handle_outbuffer_zt(Flag& flag, int len, float* outs, int i)
 {
