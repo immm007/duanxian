@@ -6,9 +6,7 @@
 
 using namespace std;
 
-map<float, shared_ptr<LBCS>> LBCS::container;
-
-void LBCS::calculate_lbcs(int len, float* outs, float* n, float* gap)
+void LBCS::calculate1(int len, float* outs, float* n, float* gap)
 /*计算连扳次数，依赖通达信传来的涨停类型数据：
 2、收盘涨停
 1、触及涨停
@@ -19,8 +17,8 @@ gap、断掉连板后的缓冲周期数
 {
 	int N = static_cast<int>(*n);
 	int GAP = static_cast<int>(*gap);
-	flag = Flag{ N,GAP };
-	if (!flag.check_input(N, GAP))
+	m_flag = shared_ptr<Flag>{ new Flag{ N,GAP } };
+	if (!m_flag->check_input())
 	{
 		Debug::show("一般情况下N必须大于Gap");
 		return;
@@ -29,18 +27,18 @@ gap、断掉连板后的缓冲周期数
 	vector<int> cached_zt;//记录缓冲期内缓存的涨停K线位置
 	for (int i = 0; i < len; ++i)
 	{
-		float zt_type = ztqks[i];
-		if (flag.is_special_case() && i == len - 1 && zt_type != 2)//特殊情况下对最后一根K线特殊处理
+		float zt_type = m_ztqks[i];
+		if (m_flag->is_special_case() && i == len - 1 && zt_type != 2)//特殊情况下对最后一根K线特殊处理
 		{
 			outs[i] = 0;
 			continue;
 		}
-		if (flag.never_zhangting())//在数据窗口内还没有涨停过
+		if (m_flag->never_zhangting())//在数据窗口内还没有涨停过
 		{
 			if (zt_type == 2)
 			{
 				outs[i] = 1;
-				flag.refresh(i, highs[i], i);
+				m_flag->refresh(i, m_highs[i], i);
 			}
 			else
 			{
@@ -49,16 +47,16 @@ gap、断掉连板后的缓冲周期数
 		}
 		else //数据窗口内之前有涨停过
 		{
-			if (flag.is_in_buffer_time(i))//还在缓冲期内
+			if (m_flag->is_in_buffer_time(i))//还在缓冲期内
 			{
 				int cached_num = cached_zt.size();
-				if (flag.is_price_higher(highs[i]))
+				if (m_flag->is_price_higher(m_highs[i]))
 				{
 					if (zt_type == 2) //涨停突破新高
 					{
 						outs[i] = outs[i - 1] + cached_num + 1;
 						cached_zt.clear();
-						flag.refresh(i, highs[i], i);
+						m_flag->refresh(i, m_highs[i], i);
 					}
 					else
 					{
@@ -71,14 +69,14 @@ gap、断掉连板后的缓冲周期数
 						{
 							outs[i] = outs[i - 1];
 						}
-						flag.refresh(i, highs[i]);
+						m_flag->refresh(i, m_highs[i]);
 					}
 				}
 				else//处理没有创新高的情况
 				{
 					if (zt_type == 2)
 					{
-						int dist = flag.dist_from_llp(i);
+						int dist = m_flag->dist_from_llp(i);
 						if (dist == 0)
 						{
 							Debug::show("dist不可能为0");
@@ -96,7 +94,7 @@ gap、断掉连板后的缓冲周期数
 						else if (dist == 2)
 						{
 							outs[i] = outs[i - 1] + 1;
-							flag.refresh(i, highs[i], i);
+							m_flag->refresh(i, m_highs[i], i);
 						}
 						else
 						{
@@ -104,7 +102,7 @@ gap、断掉连板后的缓冲周期数
 							{
 								outs[i] = outs[i - 1] + cached_num + 1;
 								cached_zt.clear();
-								flag.refresh(i, highs[i], i);
+								m_flag->refresh(i, m_highs[i], i);
 							}
 							else
 							{
@@ -126,9 +124,9 @@ gap、断掉连板后的缓冲周期数
 					//这里代码主要是看看缓存的涨停K线能否与当前K线构成新的一轮连板次数计数
 					//注意这个事实：缓存的涨停不可能有连续的
 					int j = i - 1;
-					for (; j > flag.get_buffer_start_pos(); --j)//寻找缓冲期最近未涨停的K线位置
+					for (; j > m_flag->get_buffer_start_pos(); --j)//寻找缓冲期最近未涨停的K线位置
 					{
-						if (ztqks[j] != 2)
+						if (m_ztqks[j] != 2)
 						{
 							break;
 						}
@@ -138,11 +136,11 @@ gap、断掉连板后的缓冲周期数
 					{
 						if (zt_type == 2)
 						{
-							handle_outbuffer_zt(flag,len, outs, i);
+							handle_outbuffer_zt(len, outs, i);
 						}
 						else
 						{
-							outs[i] = flag.is_in_valid_time(i) ? outs[i - 1] : 0;
+							outs[i] = m_flag->is_in_valid_time(i) ? outs[i - 1] : 0;
 						}
 					}
 					else if (tail_lbcs == 1)
@@ -150,11 +148,11 @@ gap、断掉连板后的缓冲周期数
 						if (zt_type == 2)
 						{
 							outs[i] = 2;
-							flag.refresh(i, highs[i], i);
+							m_flag->refresh(i, m_highs[i], i);
 						}
 						else
 						{
-							outs[i] = flag.is_in_valid_time(i) ? outs[i - 1] : 0;
+							outs[i] = m_flag->is_in_valid_time(i) ? outs[i - 1] : 0;
 						}
 					}
 					else//不可能存在缓存着两个连续的涨停板
@@ -169,11 +167,11 @@ gap、断掉连板后的缓冲周期数
 				{
 					if (zt_type == 2)
 					{
-						handle_outbuffer_zt(flag,len, outs, i);
+						handle_outbuffer_zt(len, outs, i);
 					}
 					else
 					{
-						outs[i] = flag.is_in_valid_time(i) ? outs[i - 1] : 0;
+						outs[i] = m_flag->is_in_valid_time(i) ? outs[i - 1] : 0;
 					}
 				}
 			}
@@ -181,20 +179,21 @@ gap、断掉连板后的缓冲周期数
 	}
 }
 
-void LBCS::calculate_df(int len, float * outs, float * closes)
+void LBCS::calculate2(int len, float * outs, float * closes, float* arg2)
+//计算连板结束后的跌幅
 {
-	int bsp = flag.get_buffer_start_pos();
+	int bsp = m_flag->get_buffer_start_pos();
 	if (len - bsp > 120)//现在距离缓冲期起始位置太远了
 	{
 		return;
 	}
-	float cur_high = flag.get_high();
-	float high = *max_element(highs + bsp + 1, highs + len);
+	float cur_high = m_flag->get_high();
+	float high = *max_element(m_highs + bsp + 1, m_highs + len);
 	if (high >= cur_high) //后面创出了新高
 	{
 		for (int j = len - 1; j > bsp; --j)
 		{
-			if (highs[j] == high)
+			if (m_highs[j] == high)
 			{
 				bsp = j;
 				break;
@@ -205,30 +204,30 @@ void LBCS::calculate_df(int len, float * outs, float * closes)
 	{
 		high = cur_high;
 	}
-	for (size_t i = bsp; i < len; i++)
+	for (int i = bsp; i < len; i++)
 	{
 		outs[i] = (closes[i] - high) / high;
 	}
 }
 
 //处理缓冲期外的涨停
-void LBCS::handle_outbuffer_zt(Flag& flag, int len, float* outs, int i)
+void LBCS::handle_outbuffer_zt(int len, float* outs, int i)
 {
-	if (i + 1 < len && ztqks[i + 1] == 2)//peek一下是否有两连板的机会
+	if (i + 1 < len && m_ztqks[i + 1] == 2)//peek一下是否有两连板的机会
 	{
 		outs[i] = 1;
-		flag.refresh(i, highs[i], i);
+		m_flag->refresh(i, m_highs[i], i);
 	}
 	else
 	{
-		if (flag.is_in_valid_time(i))
+		if (m_flag->is_in_valid_time(i))
 		{
 			outs[i] = outs[i - 1];
 		}
 		else
 		{
 			outs[i] = 1;
-			flag.refresh(i, highs[i], i);;
+			m_flag->refresh(i, m_highs[i], i);;
 		}
 	}
 }

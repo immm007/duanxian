@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Debug.hpp" />
+    <ClInclude Include="Formula.hpp" />
     <ClInclude Include="LBCS.h" />
     <ClInclude Include="PluginTCalcFunc.h" />
     <ClInclude Include="stdafx.h" />
@@ -153,7 +154,6 @@
     <ClInclude Include="TCalcFuncSets.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="duanxian.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -168,6 +168,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="duanxian.cpp" />
     <ClCompile Include="LBCS.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

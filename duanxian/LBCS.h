@@ -1,15 +1,13 @@
 #pragma once
-#include <map>
-#include <memory>
+#include "Formula.hpp"
+#include <Memory>
 
 class Flag
 {
 public:
 	Flag() {}
-	Flag(int _N, int _gap, int bsp = -1, int llp = -1, float ch = -1)
+	Flag(int _N, int _gap, int bsp = -1, int llp = -1, float ch = -1) :N{ _N }, gap{_gap}
 	{
-		N = _N;
-		gap = _gap;
 		refresh(bsp, ch, llp);
 	}
 
@@ -66,7 +64,7 @@ public:
 		return current_high;
 	}
 
-	bool check_input(int N, int gap)
+	bool check_input()
 	{
 		if (N > gap)
 		{
@@ -89,32 +87,21 @@ private:
 	float current_high;//当前最高价
 };
 
-class LBCS
+class LBCS: public Formula
 {
 public:
-	static inline void set_data(int len, float* outs, float* code, float* highs, float* ztqks)
-	{
-		if (container.count(*code) == 0)
-		{
-			container[*code] = std::shared_ptr<LBCS>(new LBCS());
-		}
-		container[*code]->set_highs(highs);
-		container[*code]->set_ztqks(ztqks);
-	}
-	static inline std::shared_ptr<LBCS> get(float* code)
-	{
-		return container[*code];
-	}
-	void calculate_lbcs(int len, float* outs, float* n, float* gap);
-	void calculate_df(int len, float* outs, float* closes);
-	inline void set_highs(float* highs) { this->highs = highs; }
-	inline void set_ztqks(float* ztqks) { this->ztqks = ztqks; }
-private:
-	static std::map<float, std::shared_ptr<LBCS>> container;
-	void handle_outbuffer_zt(Flag& flag, int len, float* outs, int i);
+	LBCS(float* code, float* highs, float* ztqks) :Formula{ code }, m_highs{ highs }, m_ztqks{ ztqks } {}
 
-	Flag flag;
-	float* highs;
-	float* ztqks;
+	void calculate1(int len, float* outs, float* arg1, float* arg2);
+	void calculate2(int len, float* outs, float* arg1, float* arg2);
+	int ID() const { return 0; }
+
+private:
+	std::shared_ptr<Flag> m_flag;
+
+	void handle_outbuffer_zt(int len, float* outs, int i);
+
+	float* m_highs;
+	float* m_ztqks;
 };
 
