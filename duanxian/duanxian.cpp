@@ -15,8 +15,7 @@ void register_formula(Formula* formula)
 //连板次数相关
  void init_lbcs(int len, float* outs, float* code, float* highs, float* ztqks)
 {
-	Formula* lbcs = new LBCS{ code,highs,ztqks };
-	register_formula(lbcs);
+	register_formula(new LBCS{ code,highs,ztqks });
 }
 
 void lbcs(int len, float* outs, float* code, float* n, float* gap)

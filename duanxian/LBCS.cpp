@@ -15,16 +15,14 @@ n、上次连板次数保持有效的周期数
 gap、断掉连板后的缓冲周期数
 */
 {
-	int N = static_cast<int>(*n);
-	int GAP = static_cast<int>(*gap);
-	m_flag = shared_ptr<Flag>{ new Flag{ N,GAP } };
+	m_flag = shared_ptr<Flag>{ new Flag{ static_cast<int>(*n),static_cast<int>(*gap) } };
 	if (!m_flag->check_input())
 	{
 		Debug::show("一般情况下N必须大于Gap");
 		return;
 	}
-	Debug* debug = Debug::create();
-	vector<int> cached_zt;//记录缓冲期内缓存的涨停K线位置
+	//Debug* debug = Debug::create();
+	vector<int> cached_zt{8};//记录缓冲期内缓存的涨停K线位置
 	for (int i = 0; i < len; ++i)
 	{
 		float zt_type = m_ztqks[i];
@@ -87,7 +85,7 @@ gap、断掉连板后的缓冲周期数
 						//但是某些极端情况，比如当天正好除权，是可能出现的
 						else if (dist == 1)
 						{
-							debug->show("非常少见的除权日及其前一天都涨停");
+							Debug::show("非常少见的除权日及其前一天都涨停");
 							outs[len - 1] = 256;//便于调试
 							return;
 						}

@@ -64,7 +64,7 @@ public:
 		return current_high;
 	}
 
-	bool check_input()
+	inline bool check_input()
 	{
 		if (N > gap)
 		{
@@ -91,6 +91,9 @@ class LBCS: public Formula
 {
 public:
 	LBCS(float* code, float* highs, float* ztqks) :Formula{ code }, m_highs{ highs }, m_ztqks{ ztqks } {}
+	LBCS(const LBCS&) = delete;
+	LBCS& operator=(const LBCS&) = delete;
+	LBCS(LBCS&&) = delete;
 
 	void calculate1(int len, float* outs, float* arg1, float* arg2);
 	void calculate2(int len, float* outs, float* arg1, float* arg2);

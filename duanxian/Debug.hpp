@@ -8,7 +8,7 @@
 class Debug
 {
 public:
-	static Debug* create()
+	static inline Debug* create()
 	{
 		static Debug debug;
 		return &debug;
@@ -35,13 +35,13 @@ public:
 	//	return std::string(buf);
 	//}
 
-	static void show(const char* msg)
+	static inline void show(const char* msg)
 	{
 		MessageBoxA(NULL, msg, "´íÎó", MB_OK);
 	}
 
 #ifndef LOGOFF
-	static void show2(const char* format, ...)
+	static inline void show2(const char* format, ...)
 	{
 		char buffer[128];
 		va_list args;
@@ -52,7 +52,7 @@ public:
 	}
 #endif // !LOGOFF
 
-	void log(const char* format, ...)
+	void inline log(const char* format, ...)
 	{
 #ifndef LOGOFF
 		char buffer[128];
