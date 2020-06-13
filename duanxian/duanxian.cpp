@@ -4,7 +4,7 @@
 #include <vector>
 #include <map>
 #include <memory>
-#include "LBCS.h"
+#include "LBTJ.h"
 
 std::vector<std::map<float, std::shared_ptr<Formula>>> FORMULAS{ 5 };
 
@@ -13,27 +13,21 @@ void register_formula(Formula* formula)
 	 FORMULAS[formula->ID()][formula->code()] = std::shared_ptr<Formula>{ formula };
 }
 //连板次数相关
- void init_lbcs(int len, float* outs, float* code, float* highs, float* ztqks)
+ void init_lbtj(int len, float* outs, float* code, float* highs, float* ztqks)
 {
-	register_formula(new LBCS{ code,highs,ztqks });
+	register_formula(new LBTJ{ code,highs,ztqks });
 }
 
-void lbcs(int len, float* outs, float* code, float* n, float* gap)
+void lbtj(int len, float* outs, float* code, float* n, float* gap)
 {
-	 FORMULAS[0][*code]->calculate1(len, outs, n, gap);
-}
-
-void lbcs_df(int len, float* outs, float* code, float* closes, float*)
-{
-	FORMULAS[0][*code]->calculate2(len, outs, closes);
+	 FORMULAS[ID_LBTJ][*code]->calculate1(len, outs, n, gap);
 }
 
 //加载的函数
 PluginTCalcFuncInfo g_CalcFuncSets[] =
 {
-	{ 1,(pPluginFUNC)&init_lbcs },
-	{ 2,(pPluginFUNC)&lbcs },
-	{ 3,(pPluginFUNC)&lbcs_df },
+	{ 1,(pPluginFUNC)&init_lbtj },
+	{ 2,(pPluginFUNC)&lbtj },
 	{ 0,NULL },
 };
 

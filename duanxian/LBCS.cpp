@@ -177,7 +177,7 @@ gap、断掉连板后的缓冲周期数
 	}
 }
 
-void LBCS::calculate2(int len, float * outs, float * closes, float* arg2)
+void LBCS::calculate2(int len, float* outs, float* closes, float* useless)
 //计算连板结束后的跌幅
 {
 	int bsp = m_flag->get_buffer_start_pos();

@@ -1,4 +1,8 @@
 #pragma once
+
+#define ID_LBCS 0
+#define ID_LBTJ 1
+
 class Formula
 {
 public:
@@ -10,8 +14,8 @@ public:
 
 	inline float code() const { return *m_code; }
 
-	virtual void calculate1(int len, float* outs, float* arg1 = nullptr, float* arg2 = nullptr) = 0;
-	virtual void calculate2(int len, float* outs, float* arg1 = nullptr, float* arg2 = nullptr) = 0;
+	virtual void calculate1(int len, float* outs, float* arg1 = nullptr, float* arg2 = nullptr) {};
+	virtual void calculate2(int len, float* outs, float* arg1 = nullptr, float* arg2 = nullptr) {};
 	virtual int ID() const = 0;
 
 private:

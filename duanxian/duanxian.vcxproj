@@ -149,8 +149,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Debug.hpp" />
+    <ClInclude Include="Flag.hpp" />
     <ClInclude Include="Formula.hpp" />
     <ClInclude Include="LBCS.h" />
+    <ClInclude Include="LBTJ.h" />
     <ClInclude Include="PluginTCalcFunc.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -173,6 +175,7 @@
     </ClCompile>
     <ClCompile Include="duanxian.cpp" />
     <ClCompile Include="LBCS.cpp" />
+    <ClCompile Include="LBTJ.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
