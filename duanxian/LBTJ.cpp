@@ -76,7 +76,16 @@ void LBTJ::calculate1(int len, float * outs, float * n, float * useless)
 						}
 						else
 						{
-							outs[i] = outs[i - 1];
+							float new_lbcs = (zt_type == 1) ? 0.5 : 1;
+							if (new_lbcs >= outs[i - 1])//如果目前连按次数小于1,有可能需要刷新
+							{
+								outs[i] = new_lbcs;
+								m_flag->refresh(i, m_highs[i], i);
+							}
+							else
+							{
+								outs[i] = outs[i - 1];
+							}
 						}
 					}
 					else//开始新的连板统计周期
