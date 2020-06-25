@@ -59,7 +59,15 @@ void LBTJ::calculate1(int len, float * outs, float * n, float * useless)
 				}
 				else//处理没有创新高的情况,缓冲期一定在有效期内
 				{
-					outs[i] = outs[i - 1];
+					if (zt_type == 2)//反包板
+					{
+						outs[i] = outs[i - 1] + 1;
+						m_flag->refresh(i, m_highs[i], i);
+					}
+					else
+					{
+						outs[i] = outs[i - 1];
+					}
 				}
 			}
 			else//已经不在缓冲期了
